@@ -1,0 +1,170 @@
+Neuron:
+    number outgoingValue (the outgoing signal value)
+    numbers outgoingWeights (the outgoing weight values)
+    numbers outgoingDeltas (the change in outgoing weight values)
+
+
+Network:
+    neurons inputLayer
+    neurons hiddenLayer
+    neurons outputLayer
+
+
+For the Iris dataset, we want 4 input neurons, because we have four features we are analyzing: sepal length, sepal width, petal length, and petal width.
+
+The number of hidden neurons shouldn't really matter, but can affect our accuracy.
+
+We want 3 output neurons because we have three different possibilities for output in this dataset: setsota, versicolor, or virginica.
+
+main:
+    load the data:
+        open the csv
+        read each line:
+            ignore 0th entry (line number)
+            convert next four entries to numbers and store in temporary array
+            convert target string to numbers, add to temporary array
+            return temporary array
+
+    split into 2 groups: 80% training, 20% testing:
+        create arrays of length 80% of data and 20% of data
+        randomly assign the data into the two arrays:
+            get array of numbers 0 through length of data
+            shuffle that array:
+                for each element in the array:
+                    pick a random number between 0 and this element index
+                    swap the value at this element index with the value at that element index
+
+    create the network using our already-defined number of neurons:
+        create arrays of size of the number of neurons we have (+1 for the bias neuron?)
+        iterate through input layer:
+            create array for outgoing weights
+            set each weight to a random number between 0.001 and 0.01
+            create array for outgoing weight changes
+            set bias neuron's value to 1, and that of the rest to 0
+        iterate through hidden layer:
+            create array for outgoing weights
+            set each weight to a random number between 0.001 and 0.01
+            create array for outgoing weight changes
+            set bias neuron's value to 1, and that of the rest to 0
+        iterate through output layer:
+            set value to 0
+            set all weights and weight changes to null (there are no outgoing weights)
+
+    train the network:
+        get indices:
+            get array of numbers 0 through length of data
+        for each epoch (trial):
+            shuffle indices array:
+                for each element in the array:
+                    pick a random number between 0 and this element index
+                    swap the value at this element index with the value at that element index
+                calculate global error:
+                    for each piece of data:
+                        feed forward the training data:
+                            set outgoing values of input layer to the input data (except for bias neuron)
+                            for each neuron in the hidden layer:
+                                for each neuron in the input layer:
+                                    sum input layer outgoing value * input layer's outgoing weight for this hidden neuron
+                                apply the activation function to the sum:
+                                    sigmoid function = 1 / ( 1 + e^-x)
+                                hidden layer outgoing value = activated sum
+                            for each neuron in output layer:
+                                for each neuron in hidden layer:
+                                    sum hidden layer outgoing value * hidden layer outgoing weight for this hidden neuron
+                                apply the activation function to the sum:
+                                    sigmoid function = 1 / ( 1 + e^-x)
+                                hidden layer outgoing value = activated sum
+                        for each neuron in the output layer:
+                            add to sum: (target - output)^2
+                    divide sum by number of output neurons * length of data
+                if global error is less than our maximum error, break
+                for each index:
+                    feed forward the training data:
+                        set outgoing values of input layer to the input data (except for bias neuron)
+                        for each neuron in the hidden layer:
+                            for each neuron in the input layer:
+                                sum input layer outgoing value * input layer's outgoing weight for this hidden neuron
+                            apply the activation function to the sum:
+                                sigmoid function = 1 / ( 1 + e^-x)
+                            hidden layer outgoing value = activated sum
+                        for each neuron in output layer:
+                            for each neuron in hidden layer:
+                                sum hidden layer outgoing value * hidden layer outgoing weight for this hidden neuron
+                            apply the activation function to the sum:
+                                sigmoid function = 1 / ( 1 + e^-x)
+                            hidden layer outgoing value = activated sum
+                    use back propagation adjust the weights based on the output:
+                        calculate the error signal for each neuron in the output layer:
+                            target data value - (output layer outgoing value * result of output layer's outgoing value through activation function's derivative)
+                            (derivative of sigmoid = sigmoid * (1 - sigmoid))
+                        for each neuron in the output layer:
+                            for each neuron in the hidden layer:
+                                weight change = (learning rate * error signal for this output neuron * outgoing value for this hidden neuron) + (momentum * outgoing change for this hidden neuron)
+                                add weight change to this hidden neuron's outgoing weight
+                                set this hidden neuron's outgoing weight change to weight change
+                        calculate the error signal for each neuron in the hidden layer:
+                            for each neuron in the output layer:
+                                add hidden neuron's outgoing weight for this output neuron * this output neuron's error
+                            hidden neuron's error = sum * this hidden neuron's outgoing value through activation function derivative
+                            (derivative of sigmoid = sigmoid * (1 - sigmoid))
+                        for each neuron in the hidden layer:
+                            for each neuron in the input layer:
+                                weight change = (learning rate * error signal for this hidden neuron * outgoing value for this input neuron) + (momentum * outgoing change for this input neuron)
+                                add weight change to this input neuron's outgoing weight
+                                set this input neuron's outgoing weight change to weight change
+
+    Compare network output to target output for training data:
+        loop through training data:
+            feed inputs through the network:
+                set outgoing values of input layer to the input data (except for bias neuron)
+                for each neuron in the hidden layer:
+                    for each neuron in the input layer:
+                        sum input layer outgoing value * input layer's outgoing weight for this hidden neuron
+                    apply the activation function to the sum:
+                        sigmoid function = 1 / ( 1 + e^-x)
+                    hidden layer outgoing value = activated sum
+                for each neuron in output layer:
+                    for each neuron in hidden layer:
+                        sum hidden layer outgoing value * hidden layer outgoing weight for this hidden neuron
+                    apply the activation function to the sum:
+                        sigmoid function = 1 / ( 1 + e^-x)
+                    hidden layer outgoing value = activated sum
+            compare outputs to actual data:
+                identify the neuron outputting the highest value:
+                    loop through output layer:
+                        if this outgoing value > current max
+                            this is the current max
+                            keep track of index
+                    if the value of our target data at the output layer's max value's index is 1, return true
+                    (highest output value = most confident)
+                    (target data has a 1 in the location corresponding to the correct answer)
+                if the output layer is correct, increment count
+            return number correct / number of data
+
+    Compare network output to target output for testing data:
+        loop through testing data:
+            feed inputs through the network:
+                set outgoing values of input layer to the input data (except for bias neuron)
+                for each neuron in the hidden layer:
+                    for each neuron in the input layer:
+                        sum input layer outgoing value * input layer's outgoing weight for this hidden neuron
+                    apply the activation function to the sum:
+                        sigmoid function = 1 / ( 1 + e^-x)
+                    hidden layer outgoing value = activated sum
+                for each neuron in output layer:
+                    for each neuron in hidden layer:
+                        sum hidden layer outgoing value * hidden layer outgoing weight for this hidden neuron
+                    apply the activation function to the sum:
+                        sigmoid function = 1 / ( 1 + e^-x)
+                    hidden layer outgoing value = activated sum
+            compare outputs to actual data:
+                identify the neuron outputting the highest value:
+                    loop through output layer:
+                        if this outgoing value > current max
+                            this is the current max
+                            keep track of index
+                    if the value of our target data at the output layer's max value's index is 1, return true
+                    (highest output value = most confident)
+                    (target data has a 1 in the location corresponding to the correct answer)
+                if the output layer is correct, increment count
+            return number correct / number of data

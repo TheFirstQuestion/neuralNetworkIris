@@ -81,7 +81,7 @@ func main() {
 
 
 
-//**************************** Network functions *************************//
+//******************************* Network functions *************************//
 
 // initNetwork initializes and populates the network with neurons whose weights are set randomly
 func (net *Network) initNetwork(numInputs, numHidden, numOutput int) {
