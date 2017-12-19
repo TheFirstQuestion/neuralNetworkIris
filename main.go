@@ -63,7 +63,7 @@ func main() {
 	learningRate := 0.05
 	momentum := 0.05
 	// The numbers of trials to run
-	maxEpochs := 1400
+	maxEpochs := 20000
 	// ??????
 	maxError := 0.005
 
@@ -152,6 +152,7 @@ func (net *Network) Train(trainData [][]float64, maxEpochs int, maxError, learnR
 		// calculateGobalError calculates the mean squared error of the network for the given dataset
 		globalError := net.calculateGlobalError(trainData)
 
+		// To avoid overfitting?
 		if globalError < maxError {
 			break
 		}

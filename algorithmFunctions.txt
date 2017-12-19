@@ -1,20 +1,16 @@
 Neuron:
     number outgoingValue (the outgoing signal value)
-    numbers outgoingWeights (the outgoing weight values)
-    numbers outgoingDeltas (the change in outgoing weight values)
+    numbers outgoingWeights (the outgoing weight values, for each neuron in the next layer)
+    numbers outgoingDeltas (the change in outgoing weight values, for each neuron in the next layer)
 
 
 Network:
-    neurons inputLayer
-    neurons hiddenLayer
-    neurons outputLayer
+    neuron array inputLayer (for the Iris dataset, we want 4 input neurons because we have four features we are analyzing: sepal length, sepal width, petal length, and petal width)
+    neuron array hiddenLayer (the number of hidden neurons shouldn't really matter, but can affect our accuracy)
+    neuron array outputLayer (we want 3 output neurons because we have three different possibilities for output in this dataset: setsota, versicolor, or virginica.)
 
 
-For the Iris dataset, we want 4 input neurons, because we have four features we are analyzing: sepal length, sepal width, petal length, and petal width.
 
-The number of hidden neurons shouldn't really matter, but can affect our accuracy.
-
-We want 3 output neurons because we have three different possibilities for output in this dataset: setsota, versicolor, or virginica.
 
 
 main:
@@ -26,13 +22,13 @@ main:
     test(testingData)
 
 
-***************************************************************** Main Functions
+**************************************************************** Main Functions
 train():
     getIndices()
     for each epoch:
         shuffleIndices()
         calculateGlobalError()
-        if global error is less than our maximum error, break
+        if global error is less than our maximum error, break (to avoid overfitting?)
         for each index:
             feedForward()
             backPropogation()
@@ -63,7 +59,6 @@ feedForward():
 backPropogation():
     calculate the error signal for each neuron in the output layer:
         target data value - (output layer outgoing value * activationFunctionDerivative(output layer's outgoing value))
-    for each neuron in the output layer:
         for each neuron in the hidden layer:
             weight change = (learning rate * error signal for this output neuron * outgoing value for this hidden neuron) + (momentum * outgoing change for this hidden neuron)
             add weight change to this hidden neuron's outgoing weight
@@ -72,7 +67,6 @@ backPropogation():
         for each neuron in the output layer:
             add hidden neuron's outgoing weight for this output neuron * this output neuron's error
         hidden neuron's error = sum * activationFunctionDerivative(hidden layer's outgoing value)
-    for each neuron in the hidden layer:
         for each neuron in the input layer:
             weight change = (learning rate * error signal for this hidden neuron * outgoing value for this input neuron) + (momentum * outgoing change for this input neuron)
             add weight change to this input neuron's outgoing weight
@@ -80,7 +74,7 @@ backPropogation():
 
 
 
-*********************************************************** Helper Functions
+************************************************************** Helper Functions
 getIndices():
     get array of numbers 0 through length of data
 
@@ -130,7 +124,7 @@ createNetwork():
 
 
 
-********************************************************** Data Functions
+**************************************************************** Data Functions
 loadData():
     open the csv
     read each line:
